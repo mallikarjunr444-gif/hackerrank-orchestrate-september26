@@ -1,0 +1,38 @@
+Rent Receipt
+Owner Name
+Receipt No.
+Vimlesh
+9453
+Date
+11/08/23
+This is to acknowledged the receipt from Yashwant (tenant) to sum of Rupees 2,00,000
+towards house rent for the month of April 2022 to September 2022, towards the propert
+bearing the address "24th, 3 floor, 150/2 Enzyme Diamond, 7th Cross Rd, 1st Sector,
+HSR Layout, Bengaluru, Karnataka 560102
+Payment Mode
+Amount in Words
+Rent & Maintanance
+Water Charges:
+Rental Tax:
+Electrical Charges:
+Total Amount to be Receiv
+Amount Received:
+Balance Due:
+1,80,000.00
+5,000.00
+5,000.00
+10,000.00
+2,00,000.00
+1,00,000.00
+1,00,000.00
+Received By
+Address
+Phone No.
+Pan No.
+Sanjay
+Stage 2, BTM, Layout, Bengaluru, Karnataka 560076
+9999999000
+Seal & Signature of the Owner
+Note:
+1. PAN of Owner not mandatory In case your annual rent payment does not exceed 1 Lak
+2. Revenue stamp necessary for Transaction more than Rs.5000

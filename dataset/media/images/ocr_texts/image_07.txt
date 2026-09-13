@@ -1,0 +1,57 @@
+Token No : 1
+PAID
+TAX INUOICE
+NAGARJUNA 1984 KMR
+#138, 1ST CROSS 5TH BLOCK KORMANGALA BANGALORE
+TEL:080-40996000,65316000
+GSTIN-29AACFA1961A1ZY
+FSSAI No- 11217334001482
+BiliNo : 10 Date : 29-10-2025 12:12 PM
+Table : P1 Covers
+: 1 Waiter : WAITER
+*Foud*
+Item
+Qty Rate
+Amount
+Carrier Meals
+Parcel Charges
+Chicken Nagarjuna
+Chapathi
+Dal
+Big Container
+Container Small
+Packing (Large)
+5.0
+5.0
+6.0
+30.0
+2.0
+2.0
+8.0
+2.0
+580.0
+90.0
+415.0
+60.0
+155.0
+15.0
+12.0
+23.0
+2900.00
+450.00
+2490.00
+1800,00
+310.00
+30.00
+96.00
+46.00
+SGST
+CGST
+SubTotal
+2.50 %
+8122.00
+203.05
+2.50 % : 203.05
+Total : 8528.10
+Grand Total (RS) : 8528
+THANK YOU VISIT AGAIN !

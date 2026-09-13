@@ -1,0 +1,28 @@
+Description
+Water Bill - Jan to March 2026
+Water Bill
+Charge Date
+07-06-2026
+Receipt
+Invoice No.
+6320
+Due Date
+02-07-2026
+Charged
+Amount(7)
+723.00
+Total Amount Received
+In Words: Rupees Seven Hundred Twenty Three Only
+Account
+Transaction ID
+Payment Gateway
+Convenience Fee
+Description
+: Indian Bank
+: 39350810ed9045da91798478b89ca561
+: paytm
+: Rs 0.00
+: Online Payment against Water Bill (Inv No - 6320)
+Amount (F)
+723.00
+· 723.00

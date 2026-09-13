@@ -1,0 +1,77 @@
+HUMAN RESOURCE DEPARTMENT
+Name
+Employee No.
+Position
+Cost Center
+: M NURHUDA SY
+: 19050378
+: Relationship Manager
+: Bank in Transit - Surabaya Basuki Rahmat
+Earning Allowances
+Salary
+Allowance BPJS Pen 2% Company
+Allowance JHT 3.7%
+Allowance JKK 0.24%
+Allowance JKM 0.3%
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+Subtotal Earnings
+Tax Allowance
+Tax Borne by Company
+Tax Penalty Borne By Company
+Total Earnings
+Transferred to :Bank Central Asia - 2582373290 - M NURHUDA SY : IDR 4,365,000
+Printed on: 2 Sep 2019 09:35 PM
+Printed by: M NURHUDA SY
+PAY SLIP Aug-2019
+Tax Ref No
+Tax Status
+899763619907000
+: TK/O
+Deductions
+4,500,000
+Deduction BPJS Pen 2% Company
+90,000
+Deduction BPJS Pen 1% Employee
+166,500
+Deduction JHT 3.7%
+10,800
+Deduction JHT 2% Employee
+13,500 Deduction JKK 0.24%
+Deduction JKM 0.3%
+4,780,800
+Subtotal Deductions
+Tax
+Tax Penalty
+4,780,800
+Total Deductions
+Net Pay
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+: IDR
+90,000
+45,000
+166,500
+90,000
+10,800
+13,500
+415,800
+415,800
+: IDR
+4,365,000
+Four Million Three Hundred Sixty Five Thousand Rupiahs

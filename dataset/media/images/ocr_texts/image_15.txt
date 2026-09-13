@@ -1,0 +1,81 @@
+Date : 07-Jun-2026
+Passenger Name : Akarsh Jain
+PNR: UC83TT
+Flight No : 6E - 861
+GSTIN of Customer :
+GSTIN Customer Name:
+From : DEL
+To: BLR
+Place of Supply : Delhi
+Description
+Air Travel and
+related charges
+Airport Charges
+Grand Total
+SAC
+Taxable
+NonTaxab
+Code
+Value
+le/Exempt
+Total
+ed Value
+996425
+9,124.00
+0.00 9,124.00
+0.00
+388.00
+388.00
+9,124.0
+388.00
+9,512.0
+IGST
+CGST
+SGST/UGST
+Tax % Amount
+Tax % Amount
+Tax %
+Amount
+0.00
+0.00
+2.50
+228.00
+2.50
+228.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+228.00
+228.00
+Currency: INR
+CESS
+Tax%
+Amount
+0
+0.00
+0.00
+0.00
+Total(Incl
+Taxes)
+9,580.00
+388.00
+9,968.00
+1. Air Travel And Related Charges:- Includes all charges related to air transportation of passengers
+2. Airport Charges :- Includes ADF, UDF, PSF and other airport charges collected on behalf of Airport operator, as applicable
+3. Misc. Services:- Includes charges of lounge, medical assistance and travel certificate
+4. Meal:- Includes all prepaid meals purchased before travel
+5. Good Karma:- Includes contributions made towards IndiGo's good karma initiative and clear the air initiative
+made at the time of reservation
+6. Amounts have been rounded off.
+7. Cess includes Kerala flood cess.
+8. The itinerary issued against this PNR forms a part of this invoice.
+9. I/We hereby declare that though our aggregate turnover in any preceding financial year from 2017-18 onwards is more than the aggregate
+turnover notified under sub-rule (4) of rule 48, we are not required to prepare an invoice in terms of the provisions of the said sub-rule.
+Authorized Signatory
+InterGlobe Aviation Limited
+Registered Office: Upper Ground Floor, Thapar House, Gate No. 2, Western Wing, 124 Janpath, New Delhi -
+110001 India.
