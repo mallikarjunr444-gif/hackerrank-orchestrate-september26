@@ -92,6 +92,8 @@ def build_forecast(user_id, request_date_str, loader):
 
         days = [parse_date(e['settlement_date']).day for e in ev_list]
         day_of_month = Counter(days).most_common(1)[0][0]
+        if cat == 'salary' and direction == 'credit' and msg_updates.get('salary_date_shift'):
+            day_of_month = parse_date(msg_updates['salary_date_shift']).day
 
         if cat == 'salary':
             if salary_ended:
