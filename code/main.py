@@ -64,10 +64,22 @@ def evaluate_predictions(preds_map, ground_truth_rows):
 def main():
     test_mode = ('--test' in sys.argv) or ('--evaluate-samples-only' in sys.argv) or ('--eval-samples' in sys.argv)
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(base_dir)
-    dataset_dir = os.path.join(repo_root, 'dataset')
+    candidates = [
+        os.environ.get('DATASET_DIR'),
+        os.path.join(base_dir, 'dataset'),
+        os.path.join(os.path.dirname(base_dir), 'dataset'),
+        os.path.join(os.path.dirname(os.path.dirname(base_dir)), 'dataset'),
+        os.path.abspath('dataset'),
+    ]
+    dataset_dir = None
+    for cand in candidates:
+        if cand and os.path.isdir(cand) and (os.path.exists(os.path.join(cand, 'requests.csv')) or os.path.exists(os.path.join(cand, 'sample_requests.csv'))):
+            dataset_dir = os.path.abspath(cand)
+            break
+    if not dataset_dir:
+        dataset_dir = os.path.join(os.path.dirname(base_dir), 'dataset')
 
-    # --requests-file <path>: custom requests path
+    repo_root = os.path.dirname(dataset_dir)
     requests_path = os.path.join(dataset_dir, 'requests.csv')
     if '--requests-file' in sys.argv:
         idx = sys.argv.index('--requests-file')
@@ -115,7 +127,7 @@ def main():
             with open(sample_out_path, mode='w', encoding='utf-8', newline='') as fp:
                 writer = csv.DictWriter(fp, fieldnames=fieldnames)
                 writer.writeheader()
-                for r in results_out:
+                for r in preds_map.values():
                     writer.writerow(r)
             print(f"Sample predictions written to {sample_out_path}")
     else:

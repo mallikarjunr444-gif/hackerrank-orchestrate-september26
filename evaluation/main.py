@@ -4,8 +4,22 @@ from data_loader import DataLoader
 from decision_engine import DecisionEngine, validate_row
 
 def evaluate_samples():
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    dataset_dir = os.path.join(repo_root, 'dataset')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.environ.get('DATASET_DIR'),
+        os.path.join(base_dir, 'dataset'),
+        os.path.join(os.path.dirname(base_dir), 'dataset'),
+        os.path.join(os.path.dirname(os.path.dirname(base_dir)), 'dataset'),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))), 'dataset'),
+        os.path.abspath('dataset'),
+    ]
+    dataset_dir = None
+    for cand in candidates:
+        if cand and os.path.isdir(cand) and (os.path.exists(os.path.join(cand, 'requests.csv')) or os.path.exists(os.path.join(cand, 'sample_requests.csv'))):
+            dataset_dir = os.path.abspath(cand)
+            break
+    if not dataset_dir:
+        dataset_dir = os.path.join(os.path.dirname(os.path.dirname(base_dir)), 'dataset')
     sample_path = os.path.join(dataset_dir, 'sample_requests.csv')
     
     loader = DataLoader(data_dir=dataset_dir)
