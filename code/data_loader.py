@@ -84,14 +84,15 @@ class DataLoader:
             'salary_ended': False,
             'rent_increase_pct': 0.0,
             'salary_amt': None,
-            'salary_date': None,
+            'salary_date': None,      # override for NEXT salary payment date
+            'salary_date_shift': None, # employer-notified date shift for recurring payroll
             'extra_inflows': []
         }
         for m in self.messages_by_user[user_id]:
             txt = m['message_text']
             if any(k in txt.lower() for k in ['employment has ended', 'telah berakhir', 'contract has ended']):
                 updates['salary_ended'] = True
-            
+
             m_rent = re.search(r'rent by (\d+)%', txt, re.I)
             if m_rent:
                 updates['rent_increase_pct'] = float(m_rent.group(1))
@@ -103,11 +104,31 @@ class DataLoader:
                 if m_date:
                     updates['extra_inflows'].append((parse_date(m_date.group(1)), inv_amt))
 
+            # Salary date shift: employer says payroll moved to a different date
+            # e.g. "salary is now expected on 2024-09-23", "expected on 2024-09-23"
+            m_shift = re.search(
+                r'(?:salary|payroll|pay).*?(?:expected|scheduled|confirmed).*?(?:on|by|from)\s*(\d{4}-\d{2}-\d{2})',
+                txt, re.I
+            )
+            if not m_shift:
+                m_shift = re.search(
+                    r'(?:expected|confirmed).*?on\s*(\d{4}-\d{2}-\d{2})',
+                    txt, re.I
+                )
+            if m_shift and m['source_type'] in ('employer', 'bank'):
+                shift_date = m_shift.group(1)
+                # Only use if the message doesn't describe an invoice/commission/bonus
+                if not any(k in txt.lower() for k in ['invoice', 'commission', 'bonus', 'faktur']):
+                    updates['salary_date_shift'] = shift_date
+
+            # Salary amount override from payroll confirmation
             m_sal = re.search(r'(?:gaji|salary|pay).*?(?:IDR|INR|USD|EUR|ZAR)\s*([\d,]+(?:\.\d+)?)', txt, re.I)
             if m_sal and not any(k in txt.lower() for k in ['bonus', 'payout is still pending', 'commission', 'faktur', 'invoice']):
                 amt = float(m_sal.group(1).replace(',', ''))
-                m_date = re.search(r'(\d{4}-\d{2}-\d{2})', txt)
-                updates['salary_amt'] = amt
-                if m_date:
-                    updates['salary_date'] = m_date.group(1)
+                # Sanity check: salary should be plausible (> 500 to filter token amounts like "EUR 5")
+                if amt > 500:
+                    m_date = re.search(r'(\d{4}-\d{2}-\d{2})', txt)
+                    updates['salary_amt'] = amt
+                    if m_date:
+                        updates['salary_date'] = m_date.group(1)
         return updates

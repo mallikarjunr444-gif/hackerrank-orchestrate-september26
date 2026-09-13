@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 from data_loader import parse_date, format_date
 
+
 def build_forecast(user_id, request_date_str, loader):
     req_d = parse_date(request_date_str)
     end_d = req_d + timedelta(days=90)
@@ -57,20 +58,32 @@ def build_forecast(user_id, request_date_str, loader):
 
     var_cats = {'groceries', 'transport'}
 
+    # For salary deduplication: find the primary (most-occurring) salary stream
+    # to avoid projecting one-time records (like a retroactive payslip) as recurring
+    primary_salary_desc = _get_primary_salary_desc(user_events)
+
     for (cat, desc, direction), ev_list in settled_by_desc.items():
         if cat in var_cats or cat == 'dining':
             continue
         if len(ev_list) < 2 and cat not in ['rent', 'utilities', 'salary']:
             continue
-        
+
         # Exclude non-recurring or variable salary items (commissions, bonuses, gig platforms, arrears)
         if cat == 'salary' and any('final' in e['description'].lower() for e in ev_list):
             continue
         if cat == 'salary' and any(k in desc.lower() for k in [
             'delivery platform', 'app earnings', 'marketplace payout', 'driver platform',
-            'arrears', 'promotion', 'commission', 'komisi', 'bonus', 'second'
+            'arrears', 'promotion', 'commission', 'komisi', 'bonus', 'second',
+            'performance', 'sales commission', 'monthly sales',
         ]):
             continue
+
+        # Deduplicate salary: only project the primary (most frequent) salary description.
+        # This prevents a one-time retroactive payslip (e.g. "August 2019 net salary")
+        # from creating a phantom recurring stream alongside the regular "Payroll credit".
+        if cat == 'salary' and direction == 'credit':
+            if primary_salary_desc and desc != primary_salary_desc and len(ev_list) < 3:
+                continue
 
         ev_list.sort(key=lambda x: parse_date(x['settlement_date']))
         last_d = parse_date(ev_list[-1]['settlement_date'])
@@ -105,6 +118,15 @@ def build_forecast(user_id, request_date_str, loader):
             m = (m - 1) % 12 + 1
             max_d = calendar.monthrange(y, m)[1]
             proj_d = datetime(y, m, min(day_of_month, max_d)).date()
+
+            # If employer signalled a date shift for the upcoming salary, use it
+            # (only for the first upcoming occurrence; later ones revert to historical pattern)
+            if cat == 'salary' and direction == 'credit' and msg_updates.get('salary_date_shift'):
+                shifted = parse_date(msg_updates['salary_date_shift'])
+                # Apply the shift only to the month that the shifted date falls in
+                if shifted.year == y and shifted.month == m:
+                    proj_d = shifted
+
             if req_d <= proj_d <= end_d:
                 already_scheduled = any(c == cat for (a, c, d, f, eid, ma) in cash_flows[proj_d])
                 if not already_scheduled and amt > 0:
@@ -140,6 +162,32 @@ def build_forecast(user_id, request_date_str, loader):
             next_d += timedelta(days=interval)
 
     return cash_flows
+
+
+def _get_primary_salary_desc(user_events):
+    """Return the most frequent settled salary description (excluding commissions/bonuses).
+    Used to deduplicate retroactive/one-time payslip records from recurring projection."""
+    non_recurring_keywords = [
+        'commission', 'komisi', 'bonus', 'arrears', 'promotion', 'performance',
+        'sales commission', 'monthly sales', 'delivery platform', 'marketplace payout',
+        'app earnings', 'driver platform',
+    ]
+    salary_descs = [
+        e['description'] for e in user_events
+        if e['category'] == 'salary' and e['status'] == 'settled' and e['direction'] == 'credit'
+        and not any(k in e['description'].lower() for k in non_recurring_keywords)
+        and 'final' not in e['description'].lower()
+    ]
+    if not salary_descs:
+        return None
+    counts = Counter(salary_descs)
+    most_common_desc, most_common_count = counts.most_common(1)[0]
+    # Only consider it the "primary" if it occurs more than once
+    # (a one-off retroactive record appears exactly once)
+    if most_common_count >= 2:
+        return most_common_desc
+    return None
+
 
 def simulate(bal0, req_d, cash_flows, payment_schedule, spending_changes=None, num_days=91):
     stopped_eids = set(c[1] for c in (spending_changes or []) if c[0] == 'stop')
