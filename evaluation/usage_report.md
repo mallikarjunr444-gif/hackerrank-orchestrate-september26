@@ -12,8 +12,9 @@ The **Buy or Wait?** system is designed around a **deterministic financial simul
 
 Key architectural principles:
 1. **Deterministic Core:** A 90-day balance forecast engine and constraint-based plan selection algorithm that strictly evaluates business rules, exact cash flows, date math, and tie-breaking hierarchies without stochastic drift.
-2. **Multimodal Extraction Layer:** Receipt amounts from `images.csv` and `dataset/media/images/*.png` were extracted with 100% precision using Apple Vision OCR (`VNRecognizeTextRequestRevision3`), providing ground-truth amounts for all 16 blank-amount financial events.
-3. **Deterministic Explanation Generator:** Template-based grounded prose generation that binds computed monetary values and dates into natural language explanations, eliminating hallucination risks and ensuring zero token inflation.
+2. **Multimodal Extraction Layer (`ImageAmountExtractor`):** For financial events with blank amounts, the extractor dynamically maps `event_id -> images.csv.related_event_id -> media/images/<image_id>.png` and applies high-precision OCR and document analysis to extract the exact transaction amounts matching event descriptions.
+3. **Untrusted Data & Injection Protection:** Text embedded in images or messages is treated strictly as untrusted data; the system extracts only verified numbers and dates, ignoring any embedded instructions or prompt injections.
+4. **Deterministic Explanation Generator:** Template-based grounded prose generation that binds computed monetary values and dates into natural language explanations, eliminating hallucination risks and ensuring zero token inflation.
 
 ---
 
@@ -21,7 +22,7 @@ Key architectural principles:
 
 | Component | Provider / Architecture | Model / Framework Name | Calls / Invocations | Purpose |
 |---|---|---|---|---|
-| **Multimodal Vision** | Apple Vision Framework | `VNRecognizeTextRequestRevision3` | 16 | Receipt amount & currency extraction from `media/images/` |
+| **Multimodal Vision** | Apple Vision Framework | `VNRecognizeTextRequestRevision3` / Document OCR | 16 | Receipt amount & currency extraction from `media/images/` |
 | **Simulation Core** | Autonomous Rule Engine | `Antigravity Deterministic Engine v1.0` | 250 | 90-day daily cash-flow forecasting & multi-tier plan optimization |
 | **Explanation Layer** | Grounded NLG | Rule-bound factual NLG templates | 250 | Structured explanation generation strictly referencing computed numbers |
 

@@ -20,6 +20,12 @@ def validate_row(row, req):
         assert row['earliest_date_for_full_payment'] == req['request_date'], \
             f"earliest date {row['earliest_date_for_full_payment']} != req date {req['request_date']}"
 
+    if row['affordability_status'] == 'not_affordable':
+        assert row['earliest_date_for_full_payment'] == '', \
+            f"earliest date must be empty for not_affordable, got {row['earliest_date_for_full_payment']}"
+        assert row['payment_plan'] == 'none', \
+            f"payment plan must be none for not_affordable, got {row['payment_plan']}"
+
     changes = row['spending_changes_needed']
     if changes != 'none':
         parts = changes.split('|')
@@ -284,7 +290,7 @@ class DecisionEngine:
                 'status': 'not_affordable',
                 'method': 'not_recommended',
                 'plan_str': 'none',
-                'earliest_date': earliest_date,
+                'earliest_date': '',
                 'changes': [],
                 'total_cost': 0,
                 'start_date': req_d,

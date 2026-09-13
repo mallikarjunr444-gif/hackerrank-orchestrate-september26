@@ -131,8 +131,12 @@ def main():
                     writer.writerow(r)
             print(f"Sample predictions written to {sample_out_path}")
     else:
-        req_path = os.path.join(dataset_dir, 'requests.csv')
+        req_path = requests_path
         out_path = os.path.join(repo_root, 'output.csv')
+        if '--output' in sys.argv:
+            idx = sys.argv.index('--output')
+            out_path = sys.argv[idx + 1]
+
         print(f"Generating predictions for {req_path} -> {out_path}...")
 
         fieldnames = [
@@ -161,7 +165,20 @@ def main():
             for r in rows_out:
                 writer.writerow(r)
 
+        # Also write to local directory output.csv if out_path was in repo_root
+        local_out = 'output.csv'
+        if os.path.abspath(out_path) != os.path.abspath(local_out):
+            try:
+                with open(local_out, mode='w', encoding='utf-8', newline='') as fp:
+                    writer = csv.DictWriter(fp, fieldnames=fieldnames)
+                    writer.writeheader()
+                    for r in rows_out:
+                        writer.writerow(r)
+            except Exception:
+                pass
+
         print(f"Successfully wrote {len(rows_out)} predictions to {out_path}.")
 
 if __name__ == '__main__':
     main()
+
