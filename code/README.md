@@ -79,7 +79,7 @@ python3 code/main.py --test
 ```
 Affordability Status : 23/25 (92.0%)
 Payment Method       : 25/25 (100.0%)
-Earliest Date        : 21/25 (84.0%)
+Earliest Date        : 22/25 (88.0%)
 Spending Changes     : 23/25 (92.0%)
 Payment Plan         : 23/25 (92.0%)
 ```

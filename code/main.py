@@ -2,11 +2,82 @@ import sys, os, csv
 from data_loader import DataLoader
 from decision_engine import DecisionEngine, validate_row
 
+def evaluate_predictions(preds_map, ground_truth_rows):
+    """
+    Evaluates predictions against ground-truth rows and prints detailed accuracy.
+    Matches the required benchmark scoring rubric.
+    """
+    matches = {
+        'safe': 0,
+        'status': 0,
+        'method': 0,
+        'earliest': 0,
+        'changes': 0,
+        'plan': 0,
+        'exact_all': 0,
+        'total': len(ground_truth_rows)
+    }
+
+    print(f"{'ID':12} | {'Status Calc / GT':35} | {'Method Calc / GT':28} | {'Earliest Calc / GT':25} | {'Changes Calc / GT'}")
+    print("-" * 125)
+    for gt in ground_truth_rows:
+        rid = gt['request_id']
+        pred = preds_map.get(rid)
+        if not pred:
+            continue
+
+        try:
+            safe_m = abs(float(pred['amount_safe_to_pay']) - float(gt['amount_safe_to_pay'])) <= 1.0
+        except Exception:
+            safe_m = False
+
+        s_m = pred['affordability_status'] == gt['affordability_status']
+        m_m = pred['recommended_payment_method'] == gt['recommended_payment_method']
+        e_m = pred['earliest_date_for_full_payment'] == gt['earliest_date_for_full_payment']
+        c_m = pred['spending_changes_needed'] == gt['spending_changes_needed']
+        p_m = pred['payment_plan'] == gt['payment_plan']
+        all_m = safe_m and s_m and m_m and e_m and c_m and p_m
+
+        if safe_m: matches['safe'] += 1
+        if s_m: matches['status'] += 1
+        if m_m: matches['method'] += 1
+        if e_m: matches['earliest'] += 1
+        if c_m: matches['changes'] += 1
+        if p_m: matches['plan'] += 1
+        if all_m: matches['exact_all'] += 1
+
+        print(f"{rid:12} | {pred['affordability_status'][:16]:16} / {gt['affordability_status'][:16]:16} | {pred['recommended_payment_method'][:12]:12} / {gt['recommended_payment_method'][:12]:12} | {pred['earliest_date_for_full_payment']:10} / {gt['earliest_date_for_full_payment']:10} | {pred['spending_changes_needed']:15} / {gt['spending_changes_needed']}")
+
+    print("=" * 125)
+    tot = matches['total']
+    print(f"Benchmark Results on {tot} samples:")
+    print(f"  amount_safe_to_pay   : {matches['safe']}/{tot} ({matches['safe']/tot*100:.1f}%)")
+    print(f"  affordability_status : {matches['status']}/{tot} ({matches['status']/tot*100:.1f}%)")
+    print(f"  payment_method       : {matches['method']}/{tot} ({matches['method']/tot*100:.1f}%)")
+    print(f"  earliest_date        : {matches['earliest']}/{tot} ({matches['earliest']/tot*100:.1f}%)")
+    print(f"  spending_changes     : {matches['changes']}/{tot} ({matches['changes']/tot*100:.1f}%)")
+    print(f"  payment_plan         : {matches['plan']}/{tot} ({matches['plan']/tot*100:.1f}%)")
+    print(f"  Exact match (all)    : {matches['exact_all']}/{tot} ({matches['exact_all']/tot*100:.1f}%)")
+    return matches
+
+
 def main():
-    test_mode = '--test' in sys.argv
+    test_mode = ('--test' in sys.argv) or ('--evaluate-samples-only' in sys.argv) or ('--eval-samples' in sys.argv)
     base_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(base_dir)
     dataset_dir = os.path.join(repo_root, 'dataset')
+
+    # --requests-file <path>: custom requests path
+    requests_path = os.path.join(dataset_dir, 'requests.csv')
+    if '--requests-file' in sys.argv:
+        idx = sys.argv.index('--requests-file')
+        custom_req = sys.argv[idx + 1]
+        if os.path.isabs(custom_req):
+            requests_path = custom_req
+        else:
+            requests_path = os.path.join(repo_root, custom_req) if not os.path.exists(custom_req) else custom_req
+        if 'sample_requests' in requests_path:
+            test_mode = True
 
     # --sample-out <path>: write sample predictions to a CSV for external evaluation
     sample_out_path = None
@@ -20,50 +91,18 @@ def main():
     engine = DecisionEngine(loader)
 
     if test_mode:
-        sample_path = os.path.join(dataset_dir, 'sample_requests.csv')
+        sample_path = requests_path if 'sample_requests' in requests_path else os.path.join(dataset_dir, 'sample_requests.csv')
         print(f"Running evaluation against {sample_path}...")
         with open(sample_path, mode='r', encoding='utf-8') as fp:
             samples = list(csv.DictReader(fp))
 
-        matches = {
-            'status': 0,
-            'method': 0,
-            'earliest': 0,
-            'changes': 0,
-            'plan': 0,
-            'total': len(samples)
-        }
-
-        results_out = []
-        print(f"{'ID':12} | {'Status Calc / GT':35} | {'Method Calc / GT':28} | {'Earliest Calc / GT':25} | {'Changes Calc / GT'}")
-        print("-" * 125)
+        preds_map = {}
         for req in samples:
             res = engine.evaluate_request(req)
             validate_row(res, req)
-            results_out.append(res)
+            preds_map[req['request_id']] = res
 
-            s_m = res['affordability_status'] == req['affordability_status']
-            m_m = res['recommended_payment_method'] == req['recommended_payment_method']
-            e_m = res['earliest_date_for_full_payment'] == req['earliest_date_for_full_payment']
-            c_m = res['spending_changes_needed'] == req['spending_changes_needed']
-            p_m = res['payment_plan'] == req['payment_plan']
-
-            if s_m: matches['status'] += 1
-            if m_m: matches['method'] += 1
-            if e_m: matches['earliest'] += 1
-            if c_m: matches['changes'] += 1
-            if p_m: matches['plan'] += 1
-
-            print(f"{req['request_id']:12} | {res['affordability_status'][:16]:16} / {req['affordability_status'][:16]:16} | {res['recommended_payment_method'][:12]:12} / {req['recommended_payment_method'][:12]:12} | {res['earliest_date_for_full_payment']:10} / {req['earliest_date_for_full_payment']:10} | {res['spending_changes_needed']:15} / {req['spending_changes_needed']}")
-
-        print("=" * 125)
-        tot = matches['total']
-        print(f"Benchmark Results on {tot} samples:")
-        print(f"  Affordability Status : {matches['status']}/{tot} ({matches['status']/tot*100:.1f}%)")
-        print(f"  Payment Method       : {matches['method']}/{tot} ({matches['method']/tot*100:.1f}%)")
-        print(f"  Earliest Date        : {matches['earliest']}/{tot} ({matches['earliest']/tot*100:.1f}%)")
-        print(f"  Spending Changes     : {matches['changes']}/{tot} ({matches['changes']/tot*100:.1f}%)")
-        print(f"  Payment Plan         : {matches['plan']}/{tot} ({matches['plan']/tot*100:.1f}%)")
+        matches = evaluate_predictions(preds_map, samples)
 
         # Write sample predictions to file if requested
         if sample_out_path:

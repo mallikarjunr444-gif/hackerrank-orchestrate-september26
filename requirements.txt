@@ -1,0 +1,14 @@
+# Buy or Wait? Dependencies
+# Requires Python 3.9+
+#
+# Core solution relies exclusively on Python standard library modules:
+# - csv
+# - calendar
+# - math
+# - datetime
+# - collections
+# - decimal
+# - copy
+# - re
+#
+# No external pip packages required for evaluation inference.
