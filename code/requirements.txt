@@ -1,22 +1,13 @@
 # Buy or Wait? — AI Financial Decision Agent
-# Challenge: HackerRank Orchestrate (September 2026)
-# Platform Runtime: Python 3.9+
 #
-# Core Evaluation Pipeline:
-# The submission is fully self-contained and executes with ZERO external pip dependencies.
-# It uses only the Python Standard Library:
-# - csv
-# - calendar
-# - math
-# - datetime
-# - collections
-# - decimal
-# - copy
-# - re
-# - os
+# The submitted evaluation path has no required third-party Python packages.
+# It uses Python 3.9+ standard-library modules plus bundled OCR text in
+# code/ocr_texts/ for deterministic offline receipt parsing.
 #
-# Optional Multimodal OCR Tooling:
-# The bundled ImageAmountExtractor includes pre-extracted OCR text streams for 100%
-# offline, deterministic evaluation. Live OCR can optionally be run if pillow & pytesseract are installed:
-# pillow>=9.0.0
-# pytesseract>=0.3.10
+# Optional live OCR fallback for local experimentation only:
+#   pillow>=9.0.0
+#   pytesseract>=0.3.10
+#
+# If those optional packages are installed, the machine must also have the
+# Tesseract OCR binary available. They are intentionally commented out so
+# `pip install -r requirements.txt` remains portable in the HackerRank runner.

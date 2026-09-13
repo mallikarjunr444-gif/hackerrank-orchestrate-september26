@@ -60,7 +60,8 @@ output.csv              ← 250 predictions (one per request)
 ### Requirements
 
 - Python 3.9+
-- No external packages required (standard library only: `csv`, `calendar`, `math`, `datetime`, `collections`, `re`)
+- No external packages required for the submitted run. The evaluator can run the full pipeline with Python's standard library plus the bundled OCR text cache in `code/ocr_texts/`.
+- Optional live OCR fallback: install `pillow` and `pytesseract`, with the Tesseract binary available on the machine. This is not required for the deterministic submission path.
 
 ### Quick Start
 
@@ -78,11 +79,13 @@ python3 code/main.py --test
 **Expected benchmark output (25 sample requests):**
 
 ```
+Amount Safe To Pay   : 4/25 (16.0%)
 Affordability Status : 23/25 (92.0%)
 Payment Method       : 25/25 (100.0%)
 Earliest Date        : 22/25 (88.0%)
 Spending Changes     : 23/25 (92.0%)
 Payment Plan         : 23/25 (92.0%)
+Exact Match (All)    : 4/25 (16.0%)
 ```
 
 ---
@@ -152,7 +155,7 @@ Only non-protected, `reducible`/`stoppable` events in categories the user permit
 
 See [`evaluation/usage_report.md`](evaluation/usage_report.md) for full details.
 
-**Summary:** The system uses **zero cloud API tokens**. The entire pipeline runs deterministically on local compute using only Python's standard library and Apple Vision for OCR (offline). Total wall-clock time: ~0.24 seconds for 250 requests.
+**Summary:** The submitted run uses **zero cloud API tokens**. It runs deterministically on local compute using Python's standard library and bundled OCR text extracted during development; optional `pytesseract` live OCR is only a fallback when the cache is absent.
 
 ---
 

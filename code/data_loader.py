@@ -69,6 +69,50 @@ class ImageAmountExtractor:
 
         return []
 
+    def _extract_amounts_from_text(self, text):
+        """Extract plausible money amounts while repairing common OCR spacing artifacts."""
+        normalized = text.replace('·', '').replace('₹', '').replace('$', '')
+        normalized = normalized.replace('RS', '').replace('Rs.', '').replace('Rs', '')
+        normalized = re.sub(r'\b7(\d{1,3}(?:,\d{3})+)\b', r'\1', normalized)
+        normalized = re.sub(r',(\d{2})$', r'.\1', normalized)
+
+        ignored_values = {
+            2015, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026,
+            560095, 560102, 996425,
+        }
+
+        values = []
+        consumed_spans = []
+
+        # OCR often splits totals as "4 543 00" instead of "4,543.00".
+        for match in re.finditer(r'(?<!\d)(\d{1,3})\s+(\d{3})\s+(\d{2})(?!\d)', normalized):
+            whole = f"{match.group(1)}{match.group(2)}"
+            cents = match.group(3)
+            try:
+                value = float(f"{whole}.{cents}")
+                if 10.0 <= value <= 50000000.0 and value not in ignored_values:
+                    values.append(value)
+                    consumed_spans.append(match.span())
+            except Exception:
+                pass
+
+        masked = list(normalized)
+        for start, end in consumed_spans:
+            for pos in range(start, end):
+                masked[pos] = ' '
+        normalized = ''.join(masked)
+
+        for match in re.findall(r'(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*(?:,\d{3})+|\d+)(?:\.\d{1,2})?', normalized):
+            clean_m = match.replace(',', '').replace(' ', '')
+            try:
+                value = float(clean_m)
+                if 10.0 <= value <= 50000000.0 and value not in ignored_values:
+                    values.append(value)
+            except Exception:
+                pass
+
+        return values
+
     def _parse_ocr_heuristic(self, lines, category=''):
         """
         Genuine rule-based parsing heuristic:
@@ -101,18 +145,7 @@ class ImageAmountExtractor:
 
             if score > 0:
                 # If current line contains numbers, check them first
-                norm_self = line.replace('·', '').replace('₹', '').replace('$', '').replace('RS', '').replace('Rs.', '')
-                norm_self = re.sub(r'\b7(\d{1,3}(?:,\d{3})+)\b', r'\1', norm_self)
-                norm_self = re.sub(r',(\d{2})$', r'.\1', norm_self)
-                self_nums = []
-                for m in re.findall(r'(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*(?:,\d{3})+|\d+)(?:\.\d{1,2})?', norm_self):
-                    c_m = m.replace(',', '').replace(' ', '')
-                    try:
-                        v = float(c_m)
-                        if 10.0 <= v <= 50000000.0 and v not in [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 560095, 560102, 996425]:
-                            self_nums.append(v)
-                    except Exception:
-                        pass
+                self_nums = self._extract_amounts_from_text(line)
                 if self_nums:
                     candidates.append((score + 5, self_nums[-1], line))
 
@@ -120,22 +153,21 @@ class ImageAmountExtractor:
                 window = lines[i:min(len(lines), i + 8)]
                 window_nums = []
                 for w_line in window:
-                    norm = w_line.replace('·', '').replace('₹', '').replace('$', '').replace('RS', '').replace('Rs.', '')
-                    norm = re.sub(r'\b7(\d{1,3}(?:,\d{3})+)\b', r'\1', norm)
-                    norm = re.sub(r',(\d{2})$', r'.\1', norm)
-
-                    for m in re.findall(r'(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*(?:,\d{3})+|\d+)(?:\.\d{1,2})?', norm):
-                        clean_m = m.replace(',', '').replace(' ', '')
-                        try:
-                            v = float(clean_m)
-                            if 10.0 <= v <= 50000000.0 and v not in [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 560095, 560102, 996425]:
-                                window_nums.append(v)
-                        except Exception:
-                            pass
+                    window_nums.extend(self._extract_amounts_from_text(w_line))
 
                 if window_nums:
                     best_num = window_nums[-1]
                     candidates.append((score, best_num, line))
+
+            next_l = lines[i + 1].strip().lower() if i + 1 < len(lines) else ''
+            if 'amount in words' in clean_l or (clean_l == 'amount in' and 'words' in next_l):
+                tail_nums = []
+                for w_line in lines[i:min(len(lines), i + 80)]:
+                    if 'authorised signatory' in w_line.lower() or 'authorized signatory' in w_line.lower():
+                        break
+                    tail_nums.extend(self._extract_amounts_from_text(w_line))
+                if tail_nums:
+                    candidates.append((84, tail_nums[-1], line))
 
         if candidates:
             candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
