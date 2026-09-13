@@ -63,8 +63,14 @@ def evaluate_predictions(preds_map, ground_truth_rows):
 
 def main():
     test_mode = ('--test' in sys.argv) or ('--evaluate-samples-only' in sys.argv) or ('--eval-samples' in sys.argv)
+    custom_dataset = None
+    if '--dataset-dir' in sys.argv:
+        idx = sys.argv.index('--dataset-dir')
+        custom_dataset = sys.argv[idx + 1]
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
+        custom_dataset,
         os.environ.get('DATASET_DIR'),
         os.path.join(base_dir, 'dataset'),
         os.path.join(os.path.dirname(base_dir), 'dataset'),
