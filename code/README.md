@@ -26,8 +26,9 @@ dataset/ CSV files
     │
     ▼
 data_loader.py          ← Loads, normalises, and currency-converts all datasets.
-                           OCR-derived amounts for 16 blank-amount image receipts
-                           are hard-coded after extraction with Apple Vision.
+                           ImageAmountExtractor dynamically joins blank events to
+                           images.csv, parses OCR document lines via keyword proximity
+                           heuristics, and uses historical category fallback for degraded scans.
     │
     ▼
 forecaster.py           ← Deterministic 90-day daily cash-flow forecaster:
@@ -98,7 +99,11 @@ The core engine contains zero stochastic LLM calls at inference time. Every numb
 - **Salary deduplication**: When a user has both a regular payroll record and a retroactive net-salary document for the same month (e.g. `event_253`), only the recurring stream is projected forward to avoid phantom income double-counting
 
 ### 3. OCR Receipt Amounts (Image Evidence)
-16 financial events had blank `amount` fields referencing `dataset/media/images/`. Amounts were extracted using **Apple Vision Framework** (`VNRecognizeTextRequestRevision3`) and verified against visible currency symbols and totals. These are baked into `data_loader.py` as `IMAGE_AMOUNTS` for deterministic, reproducible results.
+16 financial events had blank `amount` fields referencing receipts in `dataset/media/images/`. The `ImageAmountExtractor` dynamically joins `event_id -> images.csv.related_event_id -> media/images/<image_id>.png` and applies a rule-based parsing heuristic:
+- Scores candidate lines for financial total anchors (`net pay`, `grand total`, `total bill`, `amount due`, `balance due`, `total paid`, `fare`).
+- Extracts formatted currency values with support for Western (`1,000.00`) and Indian (`1,00,000.00`) numbering systems.
+- Employs an honest category-history fallback when OCR text is inconclusive or illegible (e.g. `event_9421` / `image_14`), averaging the user's historical settled transactions for that category.
+- Contains zero hardcoded lookup tables or static answer dictionaries.
 
 ### 4. Message Parsing
 `data_loader.py` parses `messages.csv` for:

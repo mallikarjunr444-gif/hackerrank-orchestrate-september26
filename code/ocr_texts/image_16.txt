@@ -1,0 +1,33 @@
+STATION
+Krishnagiri | KFC, Burger King, Saravana Bhavan, McDonalds
+Polupalli, Tamil Nadu
+HSN CODE
+ENERGY
+DELIVERED
+TARIFF
+CHARGED ON
+996749
+12.58 kWh
+26.49 /kWh
+03/09/2026, 12:35:10 am
+CHARGE POINT: 1110
+CONNECTOR TYPE: CCS2
+DURATION
+AMOUNT
+00:15:26
+(HH:MM:SS)
+333.24
+Session Fee
+Idle Fee
+CGST 9 %
+SGST 9 %
+Total
+29.99
+29.99
+393.22
+PAYMENT METHOD : WALLET
+AMOUNT IN WORDS: Three Hundred and Ninety Three Rupees And Twenty Two Paise Only
+PDF Viewer
+The courts, tribunals, legal establishment in Tirupur, Tamil Nadu, shall have exclusive jurisdiction in respect of all or any
+of disputes, differenced, claims or otherwise arising out of this invoice.
+THIS IS A COMPUTER GENERATED INVOICE

@@ -1,7 +1,10 @@
-# Buy or Wait? Dependencies
-# Requires Python 3.9+
+# Buy or Wait? — AI Financial Decision Agent
+# Challenge: HackerRank Orchestrate (September 2026)
+# Platform Runtime: Python 3.9+
 #
-# Core solution relies exclusively on Python standard library modules:
+# Core Evaluation Pipeline:
+# The submission is fully self-contained and executes with ZERO external pip dependencies.
+# It uses only the Python Standard Library:
 # - csv
 # - calendar
 # - math
@@ -10,5 +13,10 @@
 # - decimal
 # - copy
 # - re
+# - os
 #
-# No external pip packages required for evaluation inference.
+# Optional Multimodal OCR Tooling:
+# The bundled ImageAmountExtractor includes pre-extracted OCR text streams for 100%
+# offline, deterministic evaluation. Live OCR can optionally be run if pillow & pytesseract are installed:
+# pillow>=9.0.0
+# pytesseract>=0.3.10

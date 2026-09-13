@@ -1,0 +1,298 @@
+#
+1
+Item & Description
+Kellogg's Corn Flakes
+2
+Almonds & Honey
+Nestle Munch
+Munch Bites
+Akshayakalpa Butter Milk Plain
+Buttermilk Plain
+4
+Akshayakalpa Buttermilk
+Spiced
+Buttermilk Spiced
+5
+Bisleri
+Bisleri water
+Nimbooz
+7up
+Coca Cola Zero Sugar
+Zero Sugar
+8
+Pepsi
+Pepsi
+9
+Yougrt Berry Bar
+Rite Bite
+10
+Nuts & Seeds Bar
+Rite Bite
+11
+PenutButter Bar
+Rite Bite
+12
+Minute Maid Pulpy Orang
+ulpy Orang
+13
+Sunfeast Dark Fantasy
+Choco Fills
+14
+Haldiram's Mini Bhakarwadi
+15
+Mini Bhakarwadi
+Haldiram's
+Moong Dal
+16
+Rainbow Ocean Fruit Drink
+17
+Fruits & Vitamins
+Whole The Truth Almond
+Whole the Truth Almond
+Choco Fudge
+18
+Whole The Truth Cocoa
+Cocoa Cranberry
+19
+Whole the thruth
+Peanut Choco Fudge
+20
+Whole Almond Raisin
+Almond Raisin Chocolate
+21
+Whole Hazelnut Dark
+Chocolate
+Hazelnut Dark Chocolate
+HSN
+/SAC
+1904101
+1905321
+1
+0403200
+0403200
+2201101
+2202992
+2202101
+2202101
+2106909
+2106909
+2106909
+2202992
+1905310
+2106909
+2106909
+2202992
+1806320
+1806901
+1806320
+1806901
+1806901
+Qty
+15.00
+10.00
+240.00
+ml
+240.00
+ml
+48.00
+ml
+90.00
+ml
+240.00
+ml
+48.00
+ml
+72.00
+12.00
+60.00
+9
+90.00
+ml
+10.00
+48.00
+9
+40.00
+27.00
+ml
+60.00
+60.00
+60.00
+12.00
+pcs
+8.00
+pcs
+Rate
+95.00
+100.00
+27.00
+27.00
+10.00
+25.00
+40.00
+40.00
+40.00
+40.00
+40.00
+25.00
+40.00
+65.00
+113.00
+160.00
+80.00
+80.00
+80.00
+310.00
+335.00
+#
+22
+HSN
+Item & Description
+(SAC
+Wee Seat Dork Coolate 1806901
+Sea Salt Dark Chocolate
+Qty
+4.00
+pcs
+Rate
+310.00
+Total In Words
+Indian Rupee Seventy-Nine Thousand Six Hundred Seventy-Nine and
+Twenty-Six Paise Only
+Notes
+Thanks for your business.
+CGST
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+20%
+20%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+Amt
+35.63
+25.00
+162.00
+162.00
+12.00
+56.25
+1,920.00
+384.00
+72.00
+12.00
+60.00
+56.25
+10.00
+78.00
+113.00
+108.00
+120.00
+120.00
+120.00
+93.00
+67.00
+SGST
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+20%
+20%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+2.5%
+Amt
+35.63
+25.00
+162.00
+162.00
+12.00
+56.25
+1,920.00
+384.00
+72.00
+12.00
+60.00
+56.25
+10.00
+78.00
+113.00
+108.00
+120.00
+120.00
+120.00
+93.00
+67.00
+Amount
+1,425.00
+1,000.00
+6,480.00
+6,480.00
+480.00
+2,250.00
+9,600.00
+1,920.00
+2,880.00
+480.00
+2,400.00
+2,250.00
+400.00
+3,120.00
+4,520.00
+4,320.00
+4,800.00
+4,800.00
+4,800.00
+3,720.00
+2,680.00
+CGST
+%
+2.5%
+Amt
+31.00
+SGST
+%
+2.5%
+Sub Total
+CGST2.5 (2.5%)
+SGST2.5 (2.5%)
+CGST20 (20%)
+SGST20 (20%)
+Total
+Balance Due
+Amt
+31.00
+Amount
+1,240.00
+72,045.00
+1,513.13
+1,513.13
+2,304.00
+2,304.00
+779,679.26
+879,679.26

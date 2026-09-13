@@ -1,0 +1,26 @@
+CityCab Service
+Taxi License #TC-5567
+Dispatch: (555) 567-8901
+24/7 Service
+Trip:
+Driver:
+01/10/2025 21:45
+#CC-8923 Vehicle:
+Mike R. Distance:
+Ride Distance: 12.3 miles
+Airport Surcharge
+Subtotal:
+Tax:
+Total:
+Cash Paid:
+Change:
+892320251001
+#142
+12.3 mi
+$28.50
+$5.00
+$33.50
+$0.00
+$33.50
+$40.00
+$6,50

@@ -1,0 +1,100 @@
+Reg. No. DR86486
+DP Road, Pune - 411056.
+Ph: 08208064299, Timing: AVAILBALE 24 HOURS AND 7 DAYS.
+Patient UID: 1
+Name: DUMMY PATIENT (Male)
+Age: 22 years
+Address: Pune, PUNE - 411051, Contact No: 9403265989
+Payer Details
+Name: DUMMY PATIENT
+Address: Pune, PUNE - 411051
+Consulting Doctors:
+- De. Akshara Raje (General Physician)
+Date: 19-Jan-2023
+Admission No : 000001
+Admission Date: 18 Jan-2023, 12-19 PM
+Discharge Date: - 1-/-
+Bed No(s): GEN001(GENERAL)
+PROVISIONAL BILL.
+Primary Code
+100000
+300000
+500000
+Particulars
+Room & Nursing Charges
+OT Charges
+Professional Fees
+Code
+Date & Time
+Room/Bed Charges
+100000
+18-01-23 12:19 PM
+DETAILED BREAKUP
+Particulars
+Bed Charges - GENERAL
+(GEN001)
+Rate
+200.00
+Nursing Charges
+102001
+18-01-23 12:19 PM
+102003
+19-01-2312:54 PM
+102004
+19-01-23 12:19 PM
+102007
+19-01-2312:19 PM
+OT Charges
+301001
+19-01-23 12:54 PM
+Nursing Fees - GENERAL
+(GEN001)
+Nebulization - GENERAL
+(GEN001)
+Injectien Charges - GENERAL
+(GEN001)
+Blcod Transfusion Charges -
+GENERAL(GEN001)
+200.00
+100.00
+50.00
+1000.00
+Major OT Charge - GENERAL
+(GEN001)
+1000.00
+Professional Fees
+500000
+18-01-2312:22 PM
+Dr. Akshara Raje
+500.00
+Amount
+1650.00
+1000.00
+1000.00
+Total Bill Amoant: 3650.00
+Amount Payable: 3650.00
+Amount Paid: 0.00
+Balance: 3650.00
+Paid amount in words: Zero
+Units
+11/4
+Subtotal:
+11/4
+1
+1
+1
+Subtotal:
+1
+Subtotal:
+1
+Amount
+250.00
+250.00
+250.00
+100.00
+50.00
+1000.00
+1400.00
+1000.00
+1000.00
+500.00

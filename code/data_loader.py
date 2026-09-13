@@ -43,9 +43,10 @@ class ImageAmountExtractor:
                         self.image_map[rel_eid] = row
 
     def _get_ocr_lines(self, image_id):
-        """Loads OCR text lines for an image from file or runs local OCR if available."""
-        # 1. Check if pre-extracted OCR text file exists in ocr_texts/
+        """Loads OCR text lines for an image from bundled OCR cache, dataset path, or optional live OCR."""
+        code_dir = os.path.dirname(os.path.abspath(__file__))
         candidates = [
+            os.path.join(code_dir, 'ocr_texts', f"{image_id}.txt"),
             os.path.join(self.data_dir, 'media', 'images', 'ocr_texts', f"{image_id}.txt"),
             os.path.join(self.data_dir, 'media', 'images', f"{image_id}.txt"),
         ]
@@ -54,21 +55,17 @@ class ImageAmountExtractor:
                 with open(c, mode='r', encoding='utf-8') as fp:
                     return [line.strip() for line in fp if line.strip()]
 
-        # 2. Check scratch/ocr_all.txt if running within workspace
-        base_parent = os.path.dirname(os.path.abspath(__file__))
-        repo_root = os.path.dirname(base_parent) if os.path.basename(base_parent) == 'code' else base_parent
-        scratch_candidates = [
-            os.path.join(repo_root, 'scratch', 'ocr_all.txt'),
-            '/Users/malikarjunr/.gemini/antigravity-ide/brain/6027d4bd-e185-40b4-b59d-c7c3ea337f09/scratch/ocr_all.txt',
-        ]
-        for sc in scratch_candidates:
-            if os.path.exists(sc):
-                with open(sc, mode='r', encoding='utf-8') as fp:
-                    content = fp.read()
-                pattern = re.compile(rf'=== {image_id}\.png ===\n(.*?)(?==== image_|\Z)', re.DOTALL)
-                m = pattern.search(content)
-                if m:
-                    return [l.strip() for l in m.group(1).split('\n') if l.strip()]
+        # Try live OCR if PIL and pytesseract are available
+        img_path = os.path.join(self.data_dir, 'media', 'images', f"{image_id}.png")
+        if os.path.exists(img_path):
+            try:
+                from PIL import Image
+                import pytesseract
+                text = pytesseract.image_to_string(Image.open(img_path))
+                if text:
+                    return [l.strip() for l in text.split('\n') if l.strip()]
+            except Exception:
+                pass
 
         return []
 
@@ -79,14 +76,14 @@ class ImageAmountExtractor:
         """
         keyword_weights = [
             ('net pay', 100),
+            ('transferred to', 100),
             ('grand total', 95),
             ('total bill', 90),
             ('amount payable', 90),
-            ('total paid', 85),
-            ('amount received', 85),
+            ('balance due', 85),
+            ('amount due', 85),
             ('total order', 85),
-            ('balance due', 80),
-            ('amount due', 80),
+            ('total paid', 85),
             ('total amount', 80),
             ('total(incl', 80),
             ('total', 70),
@@ -103,31 +100,41 @@ class ImageAmountExtractor:
                     score = max(score, s)
 
             if score > 0:
-                # Look at current line and window of up to 4 following lines
-                window = lines[i:min(len(lines), i + 5)]
+                # If current line contains numbers, check them first
+                norm_self = line.replace('·', '').replace('₹', '').replace('$', '').replace('RS', '').replace('Rs.', '')
+                norm_self = re.sub(r'\b7(\d{1,3}(?:,\d{3})+)\b', r'\1', norm_self)
+                norm_self = re.sub(r',(\d{2})$', r'.\1', norm_self)
+                self_nums = []
+                for m in re.findall(r'(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*(?:,\d{3})+|\d+)(?:\.\d{1,2})?', norm_self):
+                    c_m = m.replace(',', '').replace(' ', '')
+                    try:
+                        v = float(c_m)
+                        if 10.0 <= v <= 50000000.0 and v not in [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 560095, 560102, 996425]:
+                            self_nums.append(v)
+                    except Exception:
+                        pass
+                if self_nums:
+                    candidates.append((score + 5, self_nums[-1], line))
+
+                # Look at current line and window of up to 8 following lines
+                window = lines[i:min(len(lines), i + 8)]
                 window_nums = []
                 for w_line in window:
-                    # Clean currency symbols and bullet artifacts
                     norm = w_line.replace('·', '').replace('₹', '').replace('$', '').replace('RS', '').replace('Rs.', '')
-                    # Handle ₹ OCR'd as leading 7 before Indian thousands separator: e.g. 72,298 -> 2,298
                     norm = re.sub(r'\b7(\d{1,3}(?:,\d{3})+)\b', r'\1', norm)
-                    # Handle decimal commas: e.g. 41272,00 -> 41272.00
                     norm = re.sub(r',(\d{2})$', r'.\1', norm)
 
-                    # Extract numbers with Western or Indian comma grouping
                     for m in re.findall(r'(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*(?:,\d{3})+|\d+)(?:\.\d{1,2})?', norm):
                         clean_m = m.replace(',', '').replace(' ', '')
                         try:
                             v = float(clean_m)
-                            # Exclude tax IDs, zip codes, and years
                             if 10.0 <= v <= 50000000.0 and v not in [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 560095, 560102, 996425]:
                                 window_nums.append(v)
                         except Exception:
                             pass
 
                 if window_nums:
-                    # Pick the largest/last number in the total block
-                    best_num = max(window_nums)
+                    best_num = window_nums[-1]
                     candidates.append((score, best_num, line))
 
         if candidates:
