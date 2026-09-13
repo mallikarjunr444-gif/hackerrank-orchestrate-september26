@@ -21,9 +21,12 @@ def build_forecast(user_id, request_date_str, loader):
                 salary_ended = True
                 break
 
-    # 1. Pending debits (reserve them conservatively)
+    # 1. Pending debits (and failed debits confirmed by bank as still outstanding)
+    retry_failed_eids = msg_updates.get('retry_failed_events', set())
     for e in user_events:
-        if e['status'] == 'pending' and e['direction'] == 'debit':
+        is_pending = (e['status'] == 'pending' and e['direction'] == 'debit')
+        is_retry = (e['status'] == 'failed' and e['direction'] == 'debit' and e['event_id'] in retry_failed_eids)
+        if is_pending or is_retry:
             s_d = parse_date(e['settlement_date'])
             post_d = max(req_d, s_d)
             if post_d <= end_d:
@@ -96,10 +99,10 @@ def build_forecast(user_id, request_date_str, loader):
             day_of_month = parse_date(msg_updates['salary_date_shift']).day
 
         if cat == 'salary':
-            if salary_ended:
-                amt = 0.0
-            elif msg_updates['salary_amt']:
+            if msg_updates['salary_amt']:
                 amt = msg_updates['salary_amt']
+            elif salary_ended:
+                amt = 0.0
             else:
                 amt = ev_list[-1]['parsed_amount']
         elif cat == 'rent':

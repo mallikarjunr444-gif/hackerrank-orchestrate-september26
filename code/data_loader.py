@@ -73,9 +73,12 @@ class DataLoader:
                     if rate_key in self.exchange_rates:
                         r['parsed_amount'] = amt * self.exchange_rates[rate_key]
                     else:
-                        matching = [v for k, v in self.exchange_rates.items() if k[1] == r['currency'] and k[2] == user_hc]
+                        # Fallback to nearest dated rate for this currency pair
+                        matching = [(k[0], v) for k, v in self.exchange_rates.items() if k[1] == r['currency'] and k[2] == user_hc]
                         if matching:
-                            r['parsed_amount'] = amt * matching[0]
+                            ev_d = parse_date(r['settlement_date'])
+                            matching.sort(key=lambda x: abs((parse_date(x[0]) - ev_d).days))
+                            r['parsed_amount'] = amt * matching[0][1]
 
                 self.events_by_user[r['user_id']].append(r)
 
@@ -88,10 +91,23 @@ class DataLoader:
             'salary_date_shift': None, # employer-notified date shift for recurring payroll
             'extra_inflows': []
         }
-        for m in self.messages_by_user[user_id]:
+        # Sort messages chronologically by sent_at so newer records supersede older ones
+        sorted_msgs = sorted(self.messages_by_user[user_id], key=lambda x: x.get('sent_at', ''))
+        for m in sorted_msgs:
             txt = m['message_text']
-            if any(k in txt.lower() for k in ['employment has ended', 'telah berakhir', 'contract has ended']):
+            if any(k in txt.lower() for k in ['employment has ended', 'hubungan kerja anda telah berakhir', 'contract has ended', 'kontrak musiman saat ini telah berakhir']):
                 updates['salary_ended'] = True
+
+            # If remaining confirmed salary is mentioned (English or Indonesian), update salary_amt and keep salary active
+            m_sisa = re.search(r'(?:sisa gaji|remaining confirmed monthly salary).*?(?:IDR|INR|USD|EUR|ZAR)\s*([\d,]+(?:\.\d+)?)', txt, re.I)
+            if m_sisa:
+                updates['salary_amt'] = float(m_sisa.group(1).replace(',', ''))
+                updates['salary_ended'] = False
+
+            # Check if bank confirms failed debit is still outstanding and will be reattempted
+            if any(k in txt.lower() for k in ['outstanding', 'another debit will be attempted', 'masih terbuka']):
+                if m.get('related_event_id'):
+                    updates.setdefault('retry_failed_events', set()).add(m['related_event_id'])
 
             m_rent = re.search(r'rent by (\d+)%', txt, re.I)
             if m_rent:

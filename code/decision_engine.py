@@ -116,9 +116,12 @@ class DecisionEngine:
         if allows_partial and 'partial_payment' in considered_methods:
             if 0 < amount_safe_to_pay < req_amt and earliest_date and parse_date(earliest_date) <= due_d:
                 p1_d = req_d
-                p1_amt = amount_safe_to_pay
+                from decimal import Decimal, ROUND_HALF_UP
+                d_safe = Decimal(str(amount_safe_to_pay)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                d_req = Decimal(str(req_amt)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                p1_amt = float(d_safe)
+                p2_amt = float(d_req - d_safe)
                 p2_d = parse_date(earliest_date)
-                p2_amt = req_amt - p1_amt
                 sched = {p1_d: p1_amt, p2_d: p2_amt}
                 min_b_cand, _ = simulate(bal0, req_d, cash_flows, sched)
                 if min_b_cand >= min_keep - 1e-4:
@@ -155,7 +158,7 @@ class DecisionEngine:
                         last_pay_d = pay_d
                     
                     plan_days = (last_pay_d - req_d).days + 1
-                    min_b_cand, _ = simulate(bal0, req_d, cash_flows, sched, num_days=min(91, plan_days))
+                    min_b_cand, _ = simulate(bal0, req_d, cash_flows, sched, num_days=91)
                     if min_b_cand >= min_keep - 1e-4:
                         candidate_plans.append({
                             'status': 'affordable_with_plan',
@@ -185,12 +188,14 @@ class DecisionEngine:
 
         possible_change_sets = []
         ev_items = list(flex_events.values())
+        # 1-change sets
         for ev in ev_items:
             if ev['can_stop']:
                 possible_change_sets.append([('stop', ev['eid'], ev['desc'])])
             if ev['can_reduce']:
                 possible_change_sets.append([('reduce_to', ev['eid'], ev['min_allowed'], ev['desc'])])
         
+        # 2-change sets (mutually exclusive events)
         for i in range(len(ev_items)):
             for j in range(i+1, len(ev_items)):
                 ev1, ev2 = ev_items[i], ev_items[j]
@@ -203,6 +208,22 @@ class DecisionEngine:
                 for c1 in c1_list:
                     for c2 in c2_list:
                         possible_change_sets.append([c1, c2])
+
+        # 3-change sets (mutually exclusive events, max 3)
+        for i in range(len(ev_items)):
+            for j in range(i+1, len(ev_items)):
+                for k in range(j+1, len(ev_items)):
+                    ev1, ev2, ev3 = ev_items[i], ev_items[j], ev_items[k]
+                    c1_list = [('stop', ev1['eid'], ev1['desc'])] if ev1['can_stop'] else []
+                    if ev1['can_reduce']: c1_list.append(('reduce_to', ev1['eid'], ev1['min_allowed'], ev1['desc']))
+                    c2_list = [('stop', ev2['eid'], ev2['desc'])] if ev2['can_stop'] else []
+                    if ev2['can_reduce']: c2_list.append(('reduce_to', ev2['eid'], ev2['min_allowed'], ev2['desc']))
+                    c3_list = [('stop', ev3['eid'], ev3['desc'])] if ev3['can_stop'] else []
+                    if ev3['can_reduce']: c3_list.append(('reduce_to', ev3['eid'], ev3['min_allowed'], ev3['desc']))
+                    for c1 in c1_list:
+                        for c2 in c2_list:
+                            for c3 in c3_list:
+                                possible_change_sets.append([c1, c2, c3])
 
         for ch_set in possible_change_sets:
             ch_tuples = [(c[0], c[1], c[2] if c[0] == 'reduce_to' else None) for c in ch_set]
@@ -259,22 +280,18 @@ class DecisionEngine:
             on_time_candidates.sort(key=plan_rank)
             chosen = on_time_candidates[0]
         else:
-            wait_candidates = [p for p in candidate_plans if p['method'] == 'wait']
-            if wait_candidates:
-                chosen = wait_candidates[0]
-            else:
-                chosen = {
-                    'status': 'not_affordable',
-                    'method': 'not_recommended',
-                    'plan_str': 'none',
-                    'earliest_date': earliest_date,
-                    'changes': [],
-                    'total_cost': 0,
-                    'start_date': req_d,
-                    'num_payments': 0,
-                    'opt_id': '99',
-                    'completes_by_due': False
-                }
+            chosen = {
+                'status': 'not_affordable',
+                'method': 'not_recommended',
+                'plan_str': 'none',
+                'earliest_date': earliest_date,
+                'changes': [],
+                'total_cost': 0,
+                'start_date': req_d,
+                'num_payments': 0,
+                'opt_id': 'none',
+                'completes_by_due': False
+            }
 
         # Build changes string
         if not chosen['changes']:
